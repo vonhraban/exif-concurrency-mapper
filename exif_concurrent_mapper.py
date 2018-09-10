@@ -4,7 +4,7 @@ from http_server import server
 import os
 import webbrowser
 from threading import Thread
-
+import atexit
 
 def get_coordinates_for_folder(folder):
     # build up a list of absolute file paths in the directory
@@ -14,8 +14,34 @@ def get_coordinates_for_folder(folder):
     return list(filter(lambda x: x != {}, coordinates_list))
 
 
+def link_files(folder):
+    '''
+    Links files so that they can be served by the server
+    :return:
+    '''
+    source_absolute = os.path.abspath(folder)
+    target_absolute = os.path.abspath('./static/source')
+    if source_absolute is not target_absolute:
+        os.symlink(source_absolute, target_absolute)
+
+
+def unlink_files():
+    '''
+    Removes the symlink
+    :return:
+    '''
+    os.unlink(os.path.abspath('./static/source'))
+
+def cleanup():
+    print("Exiting")
+    unlink_files()
+
+
+atexit.register(cleanup)
+
 if __name__ == '__main__':
-    coordinates = get_coordinates_for_folder('./files')
+    folder = './files'
+    coordinates = get_coordinates_for_folder(folder)
     thread = Thread(target=server.create)
     thread.start()
 
@@ -23,7 +49,10 @@ if __name__ == '__main__':
 
     # If they are not already there, copy over images to server dir
     # Or symlink?
+    link_files(folder)
+
     # Write points to a JSON file
     # Spin up a new webserver
     # Display index
     # On interruption, kill webserver
+    # Clean up, i.e remove symlink
