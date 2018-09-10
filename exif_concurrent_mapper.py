@@ -1,5 +1,5 @@
 from multiprocessing import Process
-from gps_coordinates import extractor
+from gps_coordinates import extractor, writer
 from http_server import server
 import os
 import webbrowser
@@ -42,6 +42,9 @@ atexit.register(cleanup)
 if __name__ == '__main__':
     folder = './files'
     coordinates = get_coordinates_for_folder(folder)
+    writer = writer.Writer()
+    writer.as_geojson(coordinates)
+    link_files(folder)
     thread = Thread(target=server.create)
     thread.start()
 
@@ -49,10 +52,3 @@ if __name__ == '__main__':
 
     # If they are not already there, copy over images to server dir
     # Or symlink?
-    link_files(folder)
-
-    # Write points to a JSON file
-    # Spin up a new webserver
-    # Display index
-    # On interruption, kill webserver
-    # Clean up, i.e remove symlink
