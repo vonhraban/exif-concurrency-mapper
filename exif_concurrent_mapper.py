@@ -50,5 +50,3 @@ if __name__ == '__main__':
 
     webbrowser.open(server.get_url(), new=2)
 
-    # If they are not already there, copy over images to server dir
-    # Or symlink?

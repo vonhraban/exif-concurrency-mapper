@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Simple Map</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
@@ -16,21 +16,58 @@
         margin: 0;
         padding: 0;
       }
+
+
+
     </style>
-  </head>
-  <body>
-    <div id="map"></div>
-    <script>
-      var map;
-      function initMap() {
+</head>
+<body>
+<div id="map"></div>
+<script>
+    var map;
+    function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: -34.397, lng: 150.644},
-          zoom: 8
+        center: {lat: -34.397, lng: 150.644},
+        zoom: 8
+    });
+    //map.data.loadGeoJson('./data.json?' + Date.now());
+    var bounds = new google.maps.LatLngBounds();
+
+    httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = function(){
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+            if (httpRequest.status === 200) {
+                requestSucceeded(httpRequest.responseText);
+            } else {
+                alert('Failed loading markers');
+            }
+        }
+    }
+    httpRequest.open('GET', './data.json?' + Date.now());
+    httpRequest.send()
+
+    function requestSucceeded(data) {
+        JSON.parse(data).features.forEach(function(feature) {
+            var marker = new google.maps.Marker({
+                position: {lng: feature.geometry.coordinates[0], lat: feature.geometry.coordinates[1]},
+                map: map,
+                title: 'Placeholder title!'
+            });
+
+            bounds.extend(
+                new google.maps.LatLng(
+                    feature.geometry.coordinates[1], feature.geometry.coordinates[0]
+                )
+            );
         });
-        map.data.loadGeoJson('./data.json?' + Date.now());
-      }
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
-    async defer></script>
-  </body>
+
+        map.setCenter(bounds.getCenter());
+        map.fitBounds(bounds);
+    }
+}
+
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
+        async defer></script>
+</body>
 </html>
