@@ -1,5 +1,14 @@
 # Thank you https://gist.github.com/snakeye/fdc372dbf11370fe29eb
 from exifread import process_file
+import os
+
+
+def get_coordinates_for_folder(folder):
+    # build up a list of absolute file paths in the directory
+    files = list(map(lambda x: os.path.abspath(os.path.join(folder, x)), os.listdir(folder)))
+    coordinates_list = list(map(get_coordinates, files))
+    # filter out empty coordinates that happen if file has no gps data attached
+    return list(filter(lambda x: x != {}, coordinates_list))
 
 
 def _convert_to_degress(value):

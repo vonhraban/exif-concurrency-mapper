@@ -7,13 +7,6 @@ from threading import Thread
 import atexit
 import sys
 
-def get_coordinates_for_folder(folder):
-    # build up a list of absolute file paths in the directory
-    files = list(map(lambda x: os.path.abspath(os.path.join(folder, x)), os.listdir(folder)))
-    coordinates_list = list(map(extractor.get_coordinates, files))
-    # filter out empty coordinates that happen if file has no gps data attached
-    return list(filter(lambda x: x != {}, coordinates_list))
-
 
 def link_files(folder):
     '''
@@ -50,7 +43,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     atexit.register(cleanup)
-    coordinates = get_coordinates_for_folder(folder)
+    coordinates = extractor.get_coordinates_for_folder(folder)
     writer = writer.Writer()
     writer.as_geojson(coordinates)
     link_files(folder)
