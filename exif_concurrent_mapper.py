@@ -5,6 +5,7 @@ import os
 import webbrowser
 from threading import Thread
 import atexit
+import sys
 
 def get_coordinates_for_folder(folder):
     # build up a list of absolute file paths in the directory
@@ -37,10 +38,18 @@ def cleanup():
     unlink_files()
 
 
-atexit.register(cleanup)
-
 if __name__ == '__main__':
-    folder = './files'
+    if len(sys.argv) != 2:
+        print("Usage: %s <folder>" % sys.argv[0])
+        sys.exit(1)
+
+    folder = sys.argv[1]
+
+    if not os.path.isdir(folder):
+        print("Error: Directory %s not found" % folder)
+        sys.exit(1)
+
+    atexit.register(cleanup)
     coordinates = get_coordinates_for_folder(folder)
     writer = writer.Writer()
     writer.as_geojson(coordinates)
